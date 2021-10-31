@@ -2,67 +2,81 @@
 #if LAB_NO>0
 double *expansion(double x0, double d, double alpha, int Nmax, matrix *ud, matrix *ad)
 {
-	double *p = new double[2];
-	solution X0(? ? ? ), X1(? ? ? );
+	double *p = new double[3];
+	solution X0(x0), X1(x0 + d);
 	X0.fit_fun(ud, ad);
 	X1.fit_fun(ud, ad);
-	if (? ? ? )
+
+	if (X0.y == X1.y)
 	{
-		? ? ? ;
-		? ? ? ;
+		p[0] = X0.x();
+		p[1] = X1.x();
+		p[2] = solution::f_calls;
 		return p;
 	}
-	if (? ? ? )
+
+	if (X0.y < X1.y)
 	{
 		d *= -1;
-		? ? ? ;
+		X1.x = X0.x + d;
 		X1.fit_fun(ud, ad);
-		if (? ? ? )
+
+		if (X0.y <= X1.y)
 		{
-			? ? ? ;
-			? ? ? ;
+			p[0] = X1.x();
+			p[1] = X0.x() - d;
+			p[2] = solution::f_calls;
 			return p;
 		}
 	}
+
 	solution X2;
-	int i = ? ? ? ;
+	int i = 1;
+	
 	while (true)
 	{
-		? ? ? ;
+		X2.x = x0 + pow(alpha, i) * d;
 		X2.fit_fun(ud, ad);
-		if (? ? ? )
+
+		if (X2.y >= X1.y || solution::f_calls > Nmax)
 			break;
-		? ? ? ;
-		? ? ? ;
+
+		X0 = X1;
+		X1 = X2;
 		++i;
 	}
-	d > 0 ? ? ? ? : ? ? ? ;
+	d > 0 ? p[0] = X0.x(), p[1] = X2.x() : (p[0] = X2.x(), p[1] = X0.x());
+	p[2] = solution::f_calls;
 	return p;
 }
 
 solution fib(double a, double b, double epsilon, matrix *ud, matrix *ad)
 {
-	int n = ? ? ? ;
+	int n = static_cast<int>(ceil(log2(sqrt(5) * (b-a) / epsilon) / log2((1+ sqrt(5)) / 2)));
 	int *F = new int[n] {1, 1};
+
 	for (int i = 2; i < n; ++i)
-		F[i] = ? ? ? ;
-	solution A(? ? ? ), B(? ? ? ), C, D;
-	C.x = ? ? ? ;
-	D.x = ? ? ? ;
+		F[i] = F[i - 2] + F[i - 1];
+	
+	solution A(a), B(b), C, D;
+	C.x = B.x - 1.0 * F[n-2] / F[n-1] * (B.x - A.x);
+	D.x = A.x + B.x - C.x;
 	C.fit_fun(ud, ad);
 	D.fit_fun(ud, ad);
+
 	for (int i = 0; i <= n - 3; ++i)
 	{
-		if (? ? ? )
-			? ? ? ;
+		if (C.y < D.y)
+			B = D;
 		else
-			? ? ? ;
-		C.x = ? ? ? ;
-		D.x = ? ? ? ;
+			A = C;
+		C.x = B.x - 1.0 * F[n - i - 2] / F[n - i - 1] * (B.x - A.x);;
+		D.x = A.x + B.x - C.x;
 		C.fit_fun(ud, ad);
 		D.fit_fun(ud, ad);
 #if LAB_NO==1 && LAB_PART==2
-		? ? ? ;
+		// dorzucanie d³ugoœci przedzia³u do ud
+		(*ud).add_row((B.x - A.x)());
 #endif
 	}
 	return C;
@@ -70,8 +84,9 @@ solution fib(double a, double b, double epsilon, matrix *ud, matrix *ad)
 
 solution lag(double a, double b, double epsilon, double gamma, int Nmax, matrix *ud, matrix *ad)
 {
-	solution A(? ? ? ), B(? ? ? ), C, D, D_old(a);
-	C.x = ? ? ? ;
+	// clear f_calls
+	solution A(a), B(b), C, D, D_old(a);
+	C.x = (a + b) / 2;
 	A.fit_fun(ud, ad);
 	B.fit_fun(ud, ad);
 	C.fit_fun(ud, ad);
@@ -80,33 +95,33 @@ solution lag(double a, double b, double epsilon, double gamma, int Nmax, matrix 
 	{
 		l = A.y(0)*(pow(B.x(0), 2) - pow(C.x(0), 2)) + B.y(0)*(pow(C.x(0), 2) - pow(A.x(0), 2)) + C.y(0)*(pow(A.x(0), 2) - pow(B.x(0), 2));
 		m = A.y(0)*(B.x(0) - C.x(0)) + B.y(0)*(C.x(0) - A.x(0)) + C.y(0)*(A.x(0) - B.x(0));
-		if (? ? ? )
+		if (m <= 0)
 		{
 			C.x = NAN;
 			C.y = NAN;
 			return C;
 		}
-		D.x = ? ? ? ;
+		D.x = 0.5 * l/m;
 		D.fit_fun(ud, ad);
-		if (? ? ? )
+		if (A.x <= D.x && D.x <= C.x)
 		{
-			if (? ? ? )
+			if (D.y < C.y)
 			{
-				? ? ? ;
-				? ? ? ;
+				B = C;
+				C = D;
 			}
 			else
-				? ? ? ;
+				A = D;
 		}
-		else if (? ? ? )
+		else if (C.x <= D.x && D.x <= B.x)
 		{
-			if (? ? ? )
+			if (D.y < C.y)
 			{
-				? ? ? ;
-				? ? ? ;
+				A = C;
+				C = D;
 			}
 			else
-				? ? ? ;
+				B = D;
 		}
 		else
 		{
@@ -115,9 +130,10 @@ solution lag(double a, double b, double epsilon, double gamma, int Nmax, matrix 
 			return C;
 		}
 #if LAB_NO==1 && LAB_PART==2
-		? ? ?
+		// dorzucanie d³ugoœci przedzia³u do ud
+		(*ud).add_row((B.x - A.x)());
 #endif
-			if (? ? ? )
+			if (B.x - A.x < epsilon || abs(D.x() - D_old.x()) < gamma || solution::f_calls > Nmax)
 				return C;
 		D_old = D;
 	}
@@ -126,32 +142,32 @@ solution lag(double a, double b, double epsilon, double gamma, int Nmax, matrix 
 #if LAB_NO>1
 solution HJ(matrix x0, double s, double alpha, double epsilon, int Nmax, matrix *ud, matrix *ad)
 {
-	solution XB(? ? ? ), XB_old, X;
+	solution XB(x0), XB_old, X;
 	XB.fit_fun(ud, ad);
 	while (true)
 	{
 		X = HJ_trial(XB, s, ud, ad);
-		if (? ? ? )
+		if (X.y < XB.y)
 		{
 			while (true)
 			{
-				? ? ? ;
-				? ? ? ;
+				XB_old = XB;
+				XB = X;
 #if LAB_NO==2 && LAB_PART==2
-				? ? ?
+				(*ud).add_row(trans(XB.x));
 #endif
-					? ? ?
+					X.x = 2 * XB.x - XB_old.x;
 					X.fit_fun(ud, ad);
 				X = HJ_trial(X, s, ud, ad);
-				if (? ? ? )
+				if (X.y >= XB.y)
 					break;
-				if (? ? ? )
+				if (solution::f_calls > Nmax)
 					return XB;
 			}
 		}
 		else
-			? ? ? ;
-		if (? ? ? )
+			s *= alpha;
+		if (s < epsilon || solution::f_calls > Nmax)
 			return XB;
 	}
 }
@@ -163,16 +179,16 @@ solution HJ_trial(solution XB, double s, matrix *ud, matrix *ad)
 	solution X;
 	for (int i = 0; i < n; ++i)
 	{
-		X.x = ? ? ?
-			X.fit_fun(ud, ad);
-		if (? ? ? )
-			? ? ? ;
+		X.x = XB.x + s * D[i];
+		X.fit_fun(ud, ad);
+		if (X.y < XB.y)
+			XB = X;
 		else
 		{
-			X.x = ? ? ?
-				X.fit_fun(ud, ad);
-			if (? ? ? )
-				? ? ? ;
+			X.x = XB.x - s * D[i];
+			X.fit_fun(ud, ad);
+			if (X.y < XB.y)
+				XB = X;
 		}
 	}
 	return XB;
@@ -180,64 +196,65 @@ solution HJ_trial(solution XB, double s, matrix *ud, matrix *ad)
 
 solution Rosen(matrix x0, matrix s0, double alpha, double beta, double epsilon, int Nmax, matrix *ud, matrix *ad)
 {
-	solution X(? ? ? ), Xt;
+	solution X(x0), Xt;
 	int n = get_dim(X);
 	matrix l(n, 1), p(n, 1), s(s0), D = ident_mat(n);
 	X.fit_fun(ud, ad);
 	while (true)
 	{
-		for (int i = 0; i < ? ? ? ; ++i)
+		for (int i = 0; i < n; ++i)
 		{
-			Xt.x = ? ? ? ;
+			Xt.x = X.x + s(i) * D[i];
 			Xt.fit_fun(ud, ad);
-			if (? ? ? )
+			if (Xt.y < X.y)
 			{
-				? ? ?
-					? ? ?
-					? ? ?
+				X = Xt;
+				l(i) += s(i);
+				s(i) *= alpha;
 			}
 			else
 			{
-				? ? ?
-					? ? ?
+				++p(i);
+				s(i) *= -beta;
 			}
 		}
 #if LAB_NO==2 && LAB_PART==2
-		? ? ?
+		(*ud).add_row(trans(X.x));
 #endif
 			bool change = true;
-		for (int i = 0; i < ? ? ? ; ++i)
-			if (? ? ? || ? ? ? )
+		for (int i = 0; i < n; ++i)
+			if (l(i) == 0 || p(i) == 0)
 			{
 				change = false;
 				break;
 			}
 		if (change)
 		{
-			matrix Q(? ? ? ), v(? ? ? );
-			for (int i = 0; ? ? ? ; ++i)
-				for (int j = 0; ? ? ? ; ++j)
-					Q(i, j) = ? ? ? ;
-			Q = ? ? ?
-				v = ? ? ?
-				D.set_col(? ? ? );
-			for (int i = 1; ? ? ? ; ++i)
+			matrix Q(n, n), v(n, 1);
+			for (int i = 0; i < n; ++i)
+				for (int j = 0; j <= i; ++j)
+					Q(i, j) = l(i);
+			Q = D * Q;
+			v = Q[0] / norm(Q[0]);
+			D.set_col(v, 0);
+			for (int i = 1; i < n; ++i) // i = j na wyk³adzie
 			{
-				matrix temp(? ? ? );
-				for (int j = 0; ? ? ? ; ++j)
-					temp = ? ? ?
-					v = ? ? ?
-					D.set_col(? ? ? );
+				matrix temp(n, 1);
+				for (int j = 0; j < i; ++j) { // j = k na wyk³adzie
+					temp = temp + trans(Q[i]) * D[j] * D[j];
+				}
+				v = (Q[i] - temp) / norm(Q[i] - temp);
+				D.set_col(v, i);
 			}
-			? ? ?
-				? ? ?
-				? ? ?
+			s = s0;
+			l = matrix(n, 1);
+			p = matrix(n, 1);
 		}
 		double max_s = abs(s(0));
 		for (int i = 1; i < n; ++i)
 			if (max_s < abs(s(i)))
 				max_s = abs(s(i));
-		if (? ? ? )
+		if (max_s < epsilon || solution::f_calls > Nmax)
 			return X;
 	}
 }

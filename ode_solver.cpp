@@ -36,7 +36,16 @@ matrix *solve_ode(double t0, double dt, double tend, const matrix &Y0, matrix *u
 matrix diff(double t, const matrix &Y, matrix *ud, matrix *ad)
 {
 #if LAB_NO==1 && LAB_PART==3
+	double a = 0.98, b = 0.63, g=9.81, PA =1, TA= 90, PB =1, DB = 0.00365665, Fin = 0.01, Tin = 10;
+	//  (*ad)() wielkoœæ otworu
+	double FAout = Y(0) > 0 ? a * b * (*ad)() * sqrt(2 * g * Y(0) / PA) : 0;
+	double FBout = Y(1) > 0 ? a * b * DB * sqrt(2 * g * Y(1) / PB) : 0;
 
+	matrix dY(3, 1);
+	dY(0) = -FAout;
+	dY(1) = FAout + Fin - FBout;
+	dY(2) = Fin / Y(1) * (Tin - Y(2)) + FAout / Y(1) * (TA - Y(2));
+	return dY;
 #elif LAB_NO==2 && LAB_PART==3
 
 #elif LAB_NO==3 && LAB_PART==2
