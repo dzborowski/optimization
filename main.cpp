@@ -175,22 +175,87 @@ int main()
 		}
 		
 #elif LAB_NO==2 && LAB_PART==1
-		double s = 0.1, epsilon = 1e-3, alpha_HJ = 0.5, aplha_R = 2, beta = 0.5;
+		double epsilon = 1e-3, alpha_HJ = 0.5, aplha_R = 2, beta = 0.5;
 		int Nmax = 5000;
-		matrix x0 = 2 * rand_mat(2, 1) - 1, s0 = matrix(2, 1, s);
-		cout << x0 << endl << endl;
-		
-		solution opt_HJ = HJ(x0, s, alpha_HJ, epsilon, Nmax);
-		cout << opt_HJ << endl << endl;
-		
-		solution::clear_calls();
 
+		double steps[3] = { 0.1, 0.4, 0.7 };
+
+		for (int i = 0; i < 3; i++)
+		{
+			double s = steps[i];
+			matrix s0 = matrix(2, 1, s);
+			double output[100][12];
+
+			for (int j = 0; j < 100; j++)
+			{
+				matrix x0 = 2 * rand_mat(2, 1) - 1;
+
+				solution::clear_calls();
+				solution opt_HJ = HJ(x0, s, alpha_HJ, epsilon, Nmax);
+				int opt_hj_f_calls = solution::f_calls;
+
+				solution::clear_calls();
+				solution opt_R = Rosen(x0, s0, aplha_R, beta, epsilon, Nmax);
+				int opt_rosen_f_calls = solution::f_calls;
+
+				output[j][0] = x0(0);
+				output[j][1] = x0(1);
+				output[j][2] = opt_HJ.x(0);
+				output[j][3] = opt_HJ.x(1);
+				output[j][4] = opt_HJ.y(0);
+				output[j][5] = opt_hj_f_calls;
+				output[j][6] = opt_HJ.x(0) - epsilon <= 0 && opt_HJ.x(1) - epsilon <= 0 ? 1.0 : 0;
+				output[j][7] = opt_R.x(0);
+				output[j][8] = opt_R.x(1);
+				output[j][9] = opt_R.y(0);
+				output[j][10] = opt_rosen_f_calls;
+				output[j][11] = opt_R.x(0) - epsilon <= 0 && opt_R.x(1) - epsilon <= 0 ? 1.0 : 0;
+			}
+
+			std::ofstream out(std::to_string(s) + "_lab_2_part_1.csv");
+
+			for (auto& row : output) {
+				for (auto col : row)
+					out << col << ',';
+				out << '\n';
+			}
+		}
+		
+
+		/*double output[1][12];
+
+		double s = 0.1;
+		matrix x0 = 2 * rand_mat(2, 1) - 1, s0 = matrix(2, 1, s);
+		cout << x0 << endl << endl;*/
+		
+		//solution::clear_calls();
+		//solution opt_HJ = HJ(x0, s, alpha_HJ, epsilon, Nmax);
+		//cout << opt_HJ << endl << endl;
+		
+		/*solution::clear_calls();
 		solution opt_R = Rosen(x0, s0, aplha_R, beta, epsilon, Nmax);
-		cout << opt_R << endl;
+		cout << opt_R << endl;*/
+
+		//output[j][0] = x0(0);
+		//output[j][1] = x0(1);
+		//output[j][2] = opt_HJ.x(0);
+		//output[j][3] = opt_HJ.x(1);
+		//output[j][4] = opt_HJ.y(0);
+		//output[j][5] = opt_hj_f_calls;
+		//output[j][6] = opt_HJ.x(0) == 0 && opt_HJ.x(1) == 0 ? 1.0 : 0;
+		//output[j][7] = opt_R.x(0);
+		//output[j][8] = opt_R.x(1);
+		//output[j][9] = opt_R.y(0);
+		//output[j][10] = opt_rosen_f_calls;
+		//output[j][11] = opt_R.x(0) == 0 && opt_R.x(1) == 0 ? 1.0 : 0;
+		
 #elif LAB_NO==2 && LAB_PART==2
 
 #elif LAB_NO==2 && LAB_PART==3
-
+		matrix x0 = matrix(2, new double[2]{ 1, 1 });
+		solution test(x0);
+		test.fit_fun();
+		cout << test << endl;
 #elif LAB_NO==3 && LAB_PART==1
 
 #elif LAB_NO==3 && LAB_PART==2
