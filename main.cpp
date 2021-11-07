@@ -248,29 +248,49 @@ int main()
 		cout << ud_R << endl;
 
 #elif LAB_NO==2 && LAB_PART==3
-		/*matrix x0 = matrix(2, new double[2]{ 1, 1 });
-		solution test(x0);
-		test.fit_fun();
-		cout << test << endl;*/
-
-
 		double s = 0.1, epsilon = 1e-3, alpha_HJ = 0.5, aplha_R = 2, beta = 0.5;
 		int Nmax = 5000;
+		int row = 1001;
+		int col = 2;
 		matrix s0 = matrix(2, 1, s);
 		matrix x0 = matrix(2, new double[2]{ 1, 1 });
 		cout << x0 << endl << endl;
 
 		solution::clear_calls();
-		matrix ud_HJ(1, 2);
-		solution opt_HJ = HJ(x0, s, alpha_HJ, epsilon, Nmax);
+		matrix ud_HJ(row, col);
+		solution opt_HJ = HJ(x0, s, alpha_HJ, epsilon, Nmax, &ud_HJ);
 		cout << opt_HJ << endl << endl;
-		cout << ud_HJ << endl << endl;
+
+		std::ofstream out_hj("lab_2_part_3_hj.csv");
+
+		for (int i = 0; i < row; ++i)
+		{
+			for (int j = 0; j < col; ++j)
+				if (j < (col - 1)) {
+					out_hj << ud_HJ(i, j) << ",";
+				}
+				else if (j == (col - 1)) {
+					out_hj << ud_HJ(i, j) << "\n";
+				}
+		}
 
 		solution::clear_calls();
-		matrix ud_R(1, 2);
-		solution opt_R = Rosen(x0, s0, aplha_R, beta, epsilon, Nmax);
+		matrix ud_R(row, col);
+		solution opt_R = Rosen(x0, s0, aplha_R, beta, epsilon, Nmax, &ud_R);
 		cout << opt_R << endl;
-		cout << ud_R << endl;
+
+		std::ofstream out_r("lab_2_part_3_r.csv");
+
+		for (int i = 0; i < row; ++i)
+		{
+			for (int j = 0; j < col; ++j)
+				if (j < (col - 1)) {
+					out_r << ud_R(i, j) << ",";
+				}
+				else if (j == (col - 1)) {
+					out_r << ud_R(i, j) << "\n";
+				}
+		}
 #elif LAB_NO==3 && LAB_PART==1
 
 #elif LAB_NO==3 && LAB_PART==2

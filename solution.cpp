@@ -96,8 +96,13 @@ void solution::fit_fun(matrix *ud, matrix *ad)
 	for (int i = 0; i < n; i++)
 	{
 		y = y + 10 * pow(a_ref - Y[1](i, 0), 2) + pow(w_ref - Y[1](i, 1), 2) + pow(x(0) * (a_ref - Y[1](i, 0)) + x(1) * (w_ref - Y[1](i, 1)), 2);
+		matrix b(1, 2);
+		b(0, 0) = Y[1](i, 0);
+		b(0, 1) = Y[1](i, 1);
+		(*ud).set_row(b, i);
 	}
 	y = 0.1 * y;
+
 #elif LAB_NO==3 && LAB_PART==1
 
 #elif LAB_NO==3 && LAB_PART==2
