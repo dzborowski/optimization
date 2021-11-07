@@ -178,7 +178,12 @@ int main()
 		double epsilon = 1e-3, alpha_HJ = 0.5, aplha_R = 2, beta = 0.5;
 		int Nmax = 5000;
 
-		double steps[3] = { 0.1, 0.4, 0.7 };
+		double steps[3] = { 0.1, 0.5, 1.0 };
+		auto isGlobalMin = [epsilon](double x1, double x2) {
+			x1 = abs(x1);
+			x2 = abs(x2);
+			return (x1 >= 0 && x1 < epsilon) && (x2 >= 0 && x2 < epsilon);
+		};
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -204,12 +209,12 @@ int main()
 				output[j][3] = opt_HJ.x(1);
 				output[j][4] = opt_HJ.y(0);
 				output[j][5] = opt_hj_f_calls;
-				output[j][6] = opt_HJ.x(0) - epsilon <= 0 && opt_HJ.x(1) - epsilon <= 0 ? 1.0 : 0;
+				output[j][6] = isGlobalMin(opt_HJ.x(0), opt_HJ.x(1)) ? 1.0 : 0;
 				output[j][7] = opt_R.x(0);
 				output[j][8] = opt_R.x(1);
 				output[j][9] = opt_R.y(0);
 				output[j][10] = opt_rosen_f_calls;
-				output[j][11] = opt_R.x(0) - epsilon <= 0 && opt_R.x(1) - epsilon <= 0 ? 1.0 : 0;
+				output[j][11] = isGlobalMin(opt_R.x(0), opt_R.x(1)) ? 1.0 : 0;
 			}
 
 			std::ofstream out(std::to_string(s) + "_lab_2_part_1.csv");
@@ -221,41 +226,51 @@ int main()
 			}
 		}
 		
-
-		/*double output[1][12];
-
-		double s = 0.1;
-		matrix x0 = 2 * rand_mat(2, 1) - 1, s0 = matrix(2, 1, s);
-		cout << x0 << endl << endl;*/
-		
-		//solution::clear_calls();
-		//solution opt_HJ = HJ(x0, s, alpha_HJ, epsilon, Nmax);
-		//cout << opt_HJ << endl << endl;
-		
-		/*solution::clear_calls();
-		solution opt_R = Rosen(x0, s0, aplha_R, beta, epsilon, Nmax);
-		cout << opt_R << endl;*/
-
-		//output[j][0] = x0(0);
-		//output[j][1] = x0(1);
-		//output[j][2] = opt_HJ.x(0);
-		//output[j][3] = opt_HJ.x(1);
-		//output[j][4] = opt_HJ.y(0);
-		//output[j][5] = opt_hj_f_calls;
-		//output[j][6] = opt_HJ.x(0) == 0 && opt_HJ.x(1) == 0 ? 1.0 : 0;
-		//output[j][7] = opt_R.x(0);
-		//output[j][8] = opt_R.x(1);
-		//output[j][9] = opt_R.y(0);
-		//output[j][10] = opt_rosen_f_calls;
-		//output[j][11] = opt_R.x(0) == 0 && opt_R.x(1) == 0 ? 1.0 : 0;
-		
 #elif LAB_NO==2 && LAB_PART==2
+		double s = 0.1, epsilon = 1e-3, alpha_HJ = 0.5, aplha_R = 2, beta = 0.5;
+		int Nmax = 5000;
+		matrix s0 = matrix(2, 1, s);
+		matrix x0 = matrix(2, 1);
+		x0(0) = -0.0432063;
+		x0(1) = -0.343887;
+		cout << x0 << endl << endl;
+		
+		solution::clear_calls();
+		matrix ud_HJ(1, 2);
+		solution opt_HJ = HJ(x0, s, alpha_HJ, epsilon, Nmax, &ud_HJ);
+		cout << opt_HJ << endl << endl;
+		cout << ud_HJ << endl << endl;
+		
+		solution::clear_calls();
+		matrix ud_R(1, 2);
+		solution opt_R = Rosen(x0, s0, aplha_R, beta, epsilon, Nmax, &ud_R);
+		cout << opt_R << endl;
+		cout << ud_R << endl;
 
 #elif LAB_NO==2 && LAB_PART==3
-		matrix x0 = matrix(2, new double[2]{ 1, 1 });
+		/*matrix x0 = matrix(2, new double[2]{ 1, 1 });
 		solution test(x0);
 		test.fit_fun();
-		cout << test << endl;
+		cout << test << endl;*/
+
+
+		double s = 0.1, epsilon = 1e-3, alpha_HJ = 0.5, aplha_R = 2, beta = 0.5;
+		int Nmax = 5000;
+		matrix s0 = matrix(2, 1, s);
+		matrix x0 = matrix(2, new double[2]{ 1, 1 });
+		cout << x0 << endl << endl;
+
+		solution::clear_calls();
+		matrix ud_HJ(1, 2);
+		solution opt_HJ = HJ(x0, s, alpha_HJ, epsilon, Nmax);
+		cout << opt_HJ << endl << endl;
+		cout << ud_HJ << endl << endl;
+
+		solution::clear_calls();
+		matrix ud_R(1, 2);
+		solution opt_R = Rosen(x0, s0, aplha_R, beta, epsilon, Nmax);
+		cout << opt_R << endl;
+		cout << ud_R << endl;
 #elif LAB_NO==3 && LAB_PART==1
 
 #elif LAB_NO==3 && LAB_PART==2
