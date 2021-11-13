@@ -292,6 +292,24 @@ int main()
 				}
 		}
 #elif LAB_NO==3 && LAB_PART==1
+matrix x0, a = 4; // a znajduje siê w g3
+
+// zrobiæ losowanie tak, ¿eby by³o w obaszarze dopuszczalnym
+do {
+	x0 = 4 * rand_mat(2, 1) + 1;
+} while (norm(x0) > a(0));
+
+cout << x0 << endl << endl;
+
+//double c0 = 1, dc = 2, epsilon = 1e-5; // zewnetrzna
+double c0 = 10, dc = 0.5, epsilon = 1e-5; // wewnetrzna
+int Nmax = 10000;
+
+// 4,49
+
+solution opt_zew = pen(x0, c0, dc, epsilon, Nmax, &a);
+cout << opt_zew<< endl << endl;
+cout << sqrt(pow(opt_zew.x(0), 2) + pow(opt_zew.x(1), 2))  << endl << endl; // 4.000001
 
 #elif LAB_NO==3 && LAB_PART==2
 

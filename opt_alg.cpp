@@ -263,15 +263,15 @@ solution Rosen(matrix x0, matrix s0, double alpha, double beta, double epsilon, 
 solution pen(matrix x0, double c0, double dc, double epsilon, int Nmax, matrix *ud, matrix *ad)
 {
 	double alpha = 1, beta = 0.5, gamma = 2, delta = 0.5, s = 0.5;
-	solution X(? ? ? ), X1;
+	solution X(x0), X1;
 	matrix c(2, new double[2]{ c0,dc });
 	while (true)
 	{
 		X1 = sym_NM(X.x, s, alpha, beta, gamma, delta, epsilon, Nmax, ud, &c);
-		if (? ? ? )
+		if (solution::f_calls > Nmax || norm(X1.x - X.x) < epsilon)
 			return X1;
-		? ? ?
-			? ? ?
+		X = X1;
+		c(0) = c(0) * dc; // dc > 1 -> kara zewnêtrzna, < wewnêtrzna
 	}
 }
 
@@ -279,14 +279,14 @@ solution sym_NM(matrix x0, double s, double alpha, double beta, double gamma, do
 {
 	int n = get_len(x0);
 	matrix D = ident_mat(n);
-	int N = n + 1;
+	int N = n + 1; // liczba wierzcho³ków, wymiar problemu + 1
 	solution *S = new solution[N];
-	S[0].x = ? ? ? ;
+	S[0].x = x0;
 	S[0].fit_fun(ud, ad);
 	for (int i = 1; i < N; ++i)
 	{
-		S[i].x = ? ? ?
-			S[i].fit_fun(ud, ad);
+		S[i].x = S[0].x + s * D[i - 1];
+		S[i].fit_fun(ud, ad);
 	}
 	solution PR, PE, PN;
 	matrix pc;
@@ -296,50 +296,50 @@ solution sym_NM(matrix x0, double s, double alpha, double beta, double gamma, do
 		i_min = i_max = 0;
 		for (int i = 1; i < N; ++i)
 		{
-			if (? ? ? )
+			if (S[i_min].y > S[i].y)
 				i_min = i;
-			if (? ? ? )
+			if (S[i_max].y < S[i].y)
 				i_max = i;
 		}
-		pc = matrix(? ? ? );
+		pc = matrix(n, 1);
 		for (int i = 0; i < N; ++i)
-			if (? ? ? )
-				? ? ?
-				pc = pc / (? ? ? );
-		PR.x = ? ? ?
+			if (i != i_max)
+				pc = pc + S[i].x;
+				pc = pc / (N - 1);
+				PR.x = pc + alpha * (pc - S[i_max].x);
 			PR.fit_fun(ud, ad);
-		if (? ? ? )
-			S[i_max] = ? ? ?
-		else if (? ? ? )
+			if (S[i_min].y <= PR.y && PR.y < S[i_max].y)
+				S[i_max] = PR;
+		else if (PR.y < S[i_min].y)
 		{
-			PE.x = ? ? ?
-				PE.fit_fun(ud, ad);
-			if (? ? ? )
-				S[i_max] = ? ? ?
+			PE.x = pc + gamma * (PR.x - pc);
+			PE.fit_fun(ud, ad);
+			if (PE.y < PR.y)
+				S[i_max] = PE;
 			else
-				S[i_max] = ? ? ?
+				S[i_max] = PR;
 		}
 		else
 		{
-			PN.x = ? ? ?
-				PN.fit_fun(ud, ad);
-			if (? ? ? )
-				S[i_max] = ? ? ?
+			PN.x = pc + beta * (S[i_max].x - pc);
+			PN.fit_fun(ud, ad);
+			if (PN.y < S[i_max].y)
+				S[i_max] = PN;
 			else
 			{
 				for (int i = 0; i < N; ++i)
-					if (? ? ? )
+					if (i != i_min)
 					{
-						S[i].x = ? ? ?
-							S[i].fit_fun(ud, ad);
+						S[i].x = delta * S[i].x + S[i_min].x;
+						S[i].fit_fun(ud, ad);
 					}
 			}
 		}
-		double max_s = ? ? ?
+			double max_s = norm(S[0].x - S[i_min].x);
 			for (int i = 1; i < N; ++i)
-				if (max_s < ? ? ? )
-					max_s = ? ? ?
-					if (? ? ? )
+				if (max_s < norm(S[i].x - S[i_min].x))
+					max_s = norm(S[i].x - S[i_min].x);
+					if (max_s < epsilon || solution::f_calls > Nmax)
 						return S[i_min];
 	}
 }

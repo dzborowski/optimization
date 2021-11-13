@@ -104,7 +104,48 @@ void solution::fit_fun(matrix *ud, matrix *ad)
 	y = 0.1 * y;
 
 #elif LAB_NO==3 && LAB_PART==1
+	double arg = 3.14 * sqrt(pow(x(0) / 3.14, 2) + pow(x(1) / 3.14, 2));
+	y = sin(arg) / arg;
 
+	//y = pow(x(0), 2) + pow(x(1), 2);
+
+	// zewnetrzna
+	if ((*ad)(1) > 1)
+	{
+		if (-x(0) + 1 > 0) {
+			y = y + (*ad)(0) * pow(-x(0) + 1, 2);
+		}
+
+		if (-x(1) + 1 > 0) {
+			y = y + (*ad)(0) * pow(-x(1) + 1, 2);
+		}
+
+		if (sqrt(pow(x(0), 2) + pow(x(1), 2)) - (*ud)(0) > 0)
+			y = y + (*ad)(0) * pow(sqrt(pow(x(0), 2) + pow(x(1), 2)) - (*ud)(0), 2);
+	}
+	else {
+		// wewnetrzna
+		if (-x(0) + 1 > 0) {
+			y = 1e+10;
+		}
+		else {
+			y = y - (*ad)(0) / (-x(0) + 1);
+		}
+
+		if (-x(1) + 1 > 0) {
+			y = 1e+10;
+		}
+		else {
+			y = y - (*ad)(0) / (-x(1) + 1);
+		}
+
+		if (sqrt(pow(x(0), 2) + pow(x(1), 2)) - (*ud)(0) > 0) {
+			y = 1e+10;
+		}
+		else {
+			y = y - (*ad)(0) / (sqrt(pow(x(0), 2) + pow(x(1), 2)) - (*ud)(0));
+		}
+	}
 #elif LAB_NO==3 && LAB_PART==2
 
 #elif LAB_NO==4 && (LAB_PART==1 || LAB_PART==2)
