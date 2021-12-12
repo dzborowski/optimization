@@ -368,7 +368,7 @@ solution SD(matrix x0, double h0, double epsilon, int Nmax, matrix *ud, matrix *
 		else
 			X1.x = X.x + h0 * d;
 #if LAB_NO==4 && LAB_PART==2
-				? ? ?
+		(*ud).add_row(trans(X1.x));
 #endif
 				if (norm(X1.x - X.x) < epsilon || solution::f_calls > Nmax || solution::g_calls > Nmax)
 				{
@@ -403,7 +403,7 @@ solution CG(matrix x0, double h0, double epsilon, int Nmax, matrix *ud, matrix *
 			else
 				X1.x = X.x + h0 * d;
 #if LAB_NO==4 && LAB_PART==2
-				? ? ?
+			(*ud).add_row(trans(X1.x));
 #endif
 				if (norm(X1.x - X.x) < epsilon || solution::f_calls > Nmax || solution::g_calls > Nmax)
 				{
@@ -441,7 +441,7 @@ solution Newton(matrix x0, double h0, double epsilon, int Nmax, matrix *ud, matr
 		else
 			X1.x = X.x + h0 * d;
 #if LAB_NO==4 && LAB_PART==2
-		? ? ?
+		(*ud).add_row(trans(X1.x));
 #endif
 			if (norm(X1.x - X.x) < epsilon || solution::f_calls > Nmax || solution::g_calls > Nmax)
 			{

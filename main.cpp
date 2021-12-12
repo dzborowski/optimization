@@ -319,7 +319,7 @@ cout << test << endl;
 
 #elif LAB_NO==4 && LAB_PART==1
 matrix x0 = 20 * rand_mat(2, 1) - 10;
-double epsilon = 1e-3, h0 = 0.05;
+double epsilon = 1e-3, h0 = -0.05;
 int Nmax = 10000;
 
 solution opt;
@@ -338,7 +338,13 @@ solution::clear_calls();
 #elif LAB_NO==4 && LAB_PART==2
 
 #elif LAB_NO==4 && LAB_PART==3
+matrix x0(3, new double[3]{ -1, 0.1, 0.1 });
+solution test(x0);
+test.fit_fun();
+test.grad();
 
+cout << test << endl;
+cout << test.g << endl;
 #elif LAB_NO==5 && LAB_PART==1
 
 #elif LAB_NO==5 && LAB_PART==2

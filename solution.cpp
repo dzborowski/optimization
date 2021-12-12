@@ -182,7 +182,30 @@ else
 	--f_calls;
 }
 #elif LAB_NO==4 && LAB_PART==3
+int m = 100, n = get_len(x);
+static matrix X(n, m), Y(1, m);
 
+if (f_calls == 1)
+{
+	ifstream S("XData.txt");
+	S >> X;
+	S.close();
+	S.open("YData.txt");
+	S >> Y;
+	S.close();
+}
+
+double h;
+y = 0;
+
+for (int i = 0; i < m; i++)
+{
+	h = (trans(x) * X[i])();
+	h = 1 / (1 + exp(-h));
+	y = y - Y(0, i) * log(h) - (1 - Y(0, i)) * log(1 - h);
+}
+
+y = y / m;
 #elif LAB_NO==5 && LAB_PART==1
 
 #elif LAB_NO==5 && LAB_PART==2
@@ -198,7 +221,33 @@ void solution::grad(matrix *ud, matrix *ad)
 	g(0) = 10 * x(0) + 8 * x(1) - 34;
 	g(1) = 8 * x(0) + 10 * x(1) - 38;
 #elif LAB_NO==4 && LAB_PART==3
+	int m = 100, n = get_len(x);
+	static matrix X(n, m), Y(1, m);
+	if (g_calls == 1)
+	{
+		ifstream S("XData.txt");
+		S >> X;
+		S.close();
+		S.open("YData.txt");
+		S >> Y;
+		S.close();
 
+		cout << "X: " << X << endl;
+		cout << "Y: " << Y << endl;
+	}
+	double h;
+	g = matrix(n, 1);
+
+	for (int j = 0; j < n; ++j)
+	{
+		for (int i = 0; i < m; i++)
+		{
+			h = (trans(x) * X[i])();
+			h = 1 / (1 + exp(-h));
+			g(j) = g(j) + X(j, i) * (h - Y(0, i));
+		}
+		g(j) = g(j) / m;
+	}
 #endif
 }
 
