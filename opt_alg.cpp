@@ -350,32 +350,33 @@ solution SD(matrix x0, double h0, double epsilon, int Nmax, matrix *ud, matrix *
 	int n = get_len(x0);
 	solution X, X1;
 	X.x = x0;
-	matrix d(n, 1), *P = new matrix[2];
-	solution h;
+	matrix d(n, 1), *P = new matrix[2]; // P[0] = x, P[1] = d
+	solution h; // dlugosc kroku, h0 poczatkowa
 	double *ab;
 	while (true)
 	{
 		X.grad();
-		d = ? ? ?
-			if (h0<0)
-			{
-				P[0] = ? ? ?
-					P[1] = ? ? ?
-					ab = ? ? ?
-					h = ? ? ?
-					X1.x = ? ? ?
-			}
-			else
-				X1.x = ? ? ?
+		d = -X.g; // kierunek = -gradient 
+		if (h0 < 0) // zmienny krok
+		{
+			P[0] = X.x;
+			P[1] = d;
+			ab = expansion(0, 1, 1.2, Nmax, ud, P);
+			h = golden(ab[0], ab[1], epsilon, Nmax, ud, P);
+			X1.x = X.x + h.x * d;
+		}
+		else
+			X1.x = X.x + h0 * d;
 #if LAB_NO==4 && LAB_PART==2
 				? ? ?
 #endif
-				if (? ? ? )
+				if (norm(X1.x - X.x) < epsilon || solution::f_calls > Nmax || solution::g_calls > Nmax)
 				{
+					// dla h0 tylko tu liczymy fit_fun
 					X1.fit_fun(ud, ad);
 					return X1;
 				}
-		? ? ?
+				X = X1;
 	}
 }
 
@@ -388,31 +389,31 @@ solution CG(matrix x0, double h0, double epsilon, int Nmax, matrix *ud, matrix *
 	solution h;
 	double *ab, beta;
 	X.grad();
-	d = ? ? ?
+	d = -X.g;
 		while (true)
 		{
 			if (h0<0)
 			{
-				P[0] = ? ? ?
-					P[1] = ? ? ?
-					ab = ? ? ?
-					h = ? ? ?
-					X1.x = ? ? ?
+				P[0] = X.x;
+				P[1] = d;
+				ab = expansion(0, 1, 1.2, Nmax, ud, P);
+				h = golden(ab[0], ab[1], epsilon, Nmax, ud, P);
+				X1.x = X.x + h.x * d;
 			}
 			else
-				X1.x = ? ? ?
+				X1.x = X.x + h0 * d;
 #if LAB_NO==4 && LAB_PART==2
 				? ? ?
 #endif
-				if (? ? ? )
+				if (norm(X1.x - X.x) < epsilon || solution::f_calls > Nmax || solution::g_calls > Nmax)
 				{
 					X1.fit_fun(ud);
 					return X1;
 				}
 			X1.grad();
-			beta = ? ? ?
-				d = ? ? ?
-				? ? ?
+			beta = pow(norm(X1.g), 2) / pow(norm(X.g), 2);
+			d = -X1.g + beta * d;
+			X = X1;
 		}
 }
 
@@ -428,58 +429,59 @@ solution Newton(matrix x0, double h0, double epsilon, int Nmax, matrix *ud, matr
 	{
 		X.grad();
 		X.hess();
-		d = ? ? ?
-			if (h0<0)
-			{
-				P[0] = ? ? ?
-					P[1] = ? ? ?
-					ab = ? ? ?
-					h = ? ? ?
-					X1.x = ? ? ?
-			}
-			else
-				X1.x = ? ? ?
+		d = -inv(X.H) * X.g;
+		if (h0 < 0) // zmienny krok
+		{
+			P[0] = X.x;
+			P[1] = d;
+			ab = expansion(0, 1, 1.2, Nmax, ud, P);
+			h = golden(ab[0], ab[1], epsilon, Nmax, ud, P);
+			X1.x = X.x + h.x * d;
+		}
+		else
+			X1.x = X.x + h0 * d;
 #if LAB_NO==4 && LAB_PART==2
-				? ? ?
-#endif
-				if (? ? ? )
-				{
-					X1.fit_fun(ud);
-					return X1;
-				}
 		? ? ?
+#endif
+			if (norm(X1.x - X.x) < epsilon || solution::f_calls > Nmax || solution::g_calls > Nmax)
+			{
+				// dla h0 tylko tu liczymy fit_fun
+				X1.fit_fun(ud, ad);
+				return X1;
+			}
+		X = X1;
 	}
 }
 
 solution golden(double a, double b, double epsilon, int Nmax, matrix *ud, matrix *ad)
 {
-	double alfa = ? ? ?
-		solution A, B, C, D;
+	double alfa = (sqrt(5) - 1) / 2;
+	solution A, B, C, D;
 	A.x = a;
 	B.x = b;
-	C.x = ? ? ?
-		C.fit_fun(ud, ad);
-	D.x = ? ? ?
-		D.fit_fun(ud, ad);
+	C.x = B.x - alfa * (B.x - A.x);
+	C.fit_fun(ud, ad);
+	D.x = A.x + alfa *(B.x - A.x);
+	D.fit_fun(ud, ad);
 	while (true)
 	{
-		if (? ? ? )
+		if (C.y < D.y)
 		{
-			? ? ?
-				? ? ?
-				? ? ?
+			B = D;
+			D = C;
+			C.x = B.x - alfa * (B.x - A.x);
 				C.fit_fun(ud, ad);
 		}
 		else
 		{
-			? ? ?
-				? ? ?
-				? ? ?
+			A = C;
+			C = D;
+			D.x = A.x + alfa * (B.x - A.x);
 				D.fit_fun(ud, ad);
 		}
-		if (? ? ? )
+		if (B.x - A.x < epsilon || solution::f_calls > Nmax)
 		{
-			A.x = ? ? ?
+			A.x = (A.x + B.x) / 2;
 				A.fit_fun(ud, ad);
 			return A;
 		}

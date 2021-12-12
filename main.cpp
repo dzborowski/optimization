@@ -318,7 +318,23 @@ test.fit_fun(nullptr, &c);
 cout << test << endl;
 
 #elif LAB_NO==4 && LAB_PART==1
+matrix x0 = 20 * rand_mat(2, 1) - 10;
+double epsilon = 1e-3, h0 = 0.05;
+int Nmax = 10000;
 
+solution opt;
+opt = SD(x0, h0, epsilon, Nmax);
+cout << opt << endl;
+solution::clear_calls();
+
+
+opt = CG(x0, h0, epsilon, Nmax);
+cout << opt << endl;
+solution::clear_calls();
+
+opt = Newton(x0, h0, epsilon, Nmax);
+cout << opt << endl;
+solution::clear_calls();
 #elif LAB_NO==4 && LAB_PART==2
 
 #elif LAB_NO==4 && LAB_PART==3

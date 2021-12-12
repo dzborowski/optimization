@@ -166,11 +166,21 @@ void solution::fit_fun(matrix *ud, matrix *ad)
 		y = y + (*ad)(0) * pow(abs(x(1)) - 20, 2);
 	if (abs(Y[1](i_50, 0) - 5) - 1 > 0)
 		y = y + (*ad)(0) * pow(abs(Y[1](i_50, 0) - 5) - 1, 2);
-
+	
 	cout << "i_50 = " << i_50 << endl;
 	cout << "i_0 = " << i_0 << endl;
 #elif LAB_NO==4 && (LAB_PART==1 || LAB_PART==2)
-
+if (ad == nullptr) {
+	y = pow(x(0) + 2 * x(1) - 7, 2) + pow(2 * x(0) + x(1) - 5, 2);
+}
+else
+{
+	solution tmp;
+	tmp.x = ad[0] + x * ad[1];
+	tmp.fit_fun(ud);
+	y = tmp.y;
+	--f_calls;
+}
 #elif LAB_NO==4 && LAB_PART==3
 
 #elif LAB_NO==5 && LAB_PART==1
@@ -184,7 +194,9 @@ void solution::grad(matrix *ud, matrix *ad)
 {
 	++g_calls;
 #if LAB_NO==4 && (LAB_PART==1 || LAB_PART==2)
-
+	g = matrix(2, 1);
+	g(0) = 10 * x(0) + 8 * x(1) - 34;
+	g(1) = 8 * x(0) + 10 * x(1) - 38;
 #elif LAB_NO==4 && LAB_PART==3
 
 #endif
@@ -194,6 +206,8 @@ void solution::hess(matrix *ud, matrix *ad)
 {
 	++H_calls;
 #if LAB_NO==4 && (LAB_PART==1 || LAB_PART==2)
-
+	H = matrix(2, 2);
+	H(0, 0) = H(1, 1) = 10;
+	H(0, 1) = H(1, 0) = 8;
 #endif
 }
