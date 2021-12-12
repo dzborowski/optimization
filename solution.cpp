@@ -147,7 +147,28 @@ void solution::fit_fun(matrix *ud, matrix *ad)
 		}
 	}
 #elif LAB_NO==3 && LAB_PART==2
+	matrix Y0 = matrix(4, new double[4]{ 0,x(0),100,0 });
+	matrix* Y = solve_ode(0, 0.01, 7, Y0, &matrix(x(1)));
+	int n = get_len(Y[0]);
+	int i_50 = 0, i_0 = 0;
+	for (int i = 0; i < n; ++i)
+	{
+		if (abs(Y[1](i, 2) - 50) < abs(Y[1](i_50, 2) - 50))
+			i_50 = i;
+		if (abs(Y[1](i, 2)) < abs(Y[1](i_0, 2)))
+			i_0 = i;
+}
+	y = -Y[1](i_0, 0);
 
+	if (abs(x(0)) - 10 > 0)
+		y = y + (*ad)(0) * pow(abs(x(0)) - 10, 2);
+	if (abs(x(1)) - 20 > 0)
+		y = y + (*ad)(0) * pow(abs(x(1)) - 20, 2);
+	if (abs(Y[1](i_50, 0) - 5) - 1 > 0)
+		y = y + (*ad)(0) * pow(abs(Y[1](i_50, 0) - 5) - 1, 2);
+
+	cout << "i_50 = " << i_50 << endl;
+	cout << "i_0 = " << i_0 << endl;
 #elif LAB_NO==4 && (LAB_PART==1 || LAB_PART==2)
 
 #elif LAB_NO==4 && LAB_PART==3

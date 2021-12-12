@@ -312,7 +312,11 @@ cout << opt_zew<< endl << endl;
 cout << sqrt(pow(opt_zew.x(0), 2) + pow(opt_zew.x(1), 2))  << endl << endl; // 4.000001
 
 #elif LAB_NO==3 && LAB_PART==2
-cout << "test" << endl;
+matrix x0(2, 1, 2), c = 1;
+solution test(x0);
+test.fit_fun(nullptr, &c);
+cout << test << endl;
+
 #elif LAB_NO==4 && LAB_PART==1
 
 #elif LAB_NO==4 && LAB_PART==2
