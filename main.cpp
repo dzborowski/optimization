@@ -320,22 +320,34 @@ cout << x0 << endl << endl;
 //test.fit_fun(nullptr, &c);
 //cout << test << endl;
 
-double c0 = 1, dc = 2, epsilon = 1e-1; // zewnetrzna
-int Nmax = 2000;
+double c0 = 10, dc = 2, epsilon = 1e-1; // zewnetrzna
+int Nmax = 1000, row = 701, col = 3;
 
 std::uniform_real_distribution<double> v_unif(-10, 10);
 std::uniform_real_distribution<double> w_unif(-20, 20);
-std::default_random_engine v_re;
-std::default_random_engine w_re;
+std::default_random_engine re;
 
-matrix x0(2, 1), ud(1, 3);
-x0(0, 0) = v_unif(v_re);
-x0(1, 0) = w_unif(w_re);
+matrix x0(2, 1), ud(row, col);
+x0(0, 0) = v_unif(re);
+x0(1, 0) = w_unif(re);
 
 cout << x0 << endl << endl;
 
 solution opt = pen(x0, c0, dc, epsilon, Nmax, &ud);
 cout << opt << endl << endl;
+
+std::ofstream out("lab_3_part_3.csv");
+
+for (int i = 0; i < row; ++i)
+{
+	for (int j = 0; j < col; ++j)
+		if (j < (col - 1)) {
+			out << ud(i, j) << ",";
+		}
+		else if (j == (col - 1)) {
+			out << ud(i, j) << "\n";
+		}
+}
 
 #elif LAB_NO==4 && LAB_PART==1
 matrix x0 = 20 * rand_mat(2, 1) - 10;

@@ -157,6 +157,12 @@ void solution::fit_fun(matrix *ud, matrix *ad)
 			i_50 = i;
 		if (abs(Y[1](i, 2)) < abs(Y[1](i_0, 2)))
 			i_0 = i;
+
+		matrix b(1, 3);
+		b(0, 0) = Y[0](i);
+		b(0, 1) = Y[1](i, 0);
+		b(0, 2) = Y[1](i, 2);
+		(*ud).set_row(b, i);
 	}
 	y = -Y[1](i_0, 0);
 
@@ -166,6 +172,9 @@ void solution::fit_fun(matrix *ud, matrix *ad)
 		y = y + (*ad)(0) * pow(abs(x(1)) - 20, 2);
 	if (abs(Y[1](i_50, 0) - 5) - 1 > 0)
 		y = y + (*ad)(0) * pow(abs(Y[1](i_50, 0) - 5) - 1, 2);
+
+	cout << "i_50: " << i_50 << " val x: " << Y[1](i_50, 0) << " val y: " << Y[1](i_50, 2)  << endl;
+	cout << "i_0: " << i_0 << " val x: " << Y[1](i_0, 0) << " val y: " << Y[1](i_0, 2) << endl;
 #elif LAB_NO==4 && (LAB_PART==1 || LAB_PART==2)
 if (ad == nullptr) {
 	y = pow(x(0) + 2 * x(1) - 7, 2) + pow(2 * x(0) + x(1) - 5, 2);
