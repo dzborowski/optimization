@@ -300,22 +300,42 @@ do {
 } while (norm(x0) > a(0));
 
 cout << x0 << endl << endl;
+//x0.add_row(10);
+//cout << x0(1, 0) << endl << endl;
+//cout << x0(2, 0) << endl << endl;
 
-//double c0 = 1, dc = 2, epsilon = 1e-5; // zewnetrzna
-double c0 = 10, dc = 0.5, epsilon = 1e-5; // wewnetrzna
-int Nmax = 10000;
-
-// 4,49
-
-solution opt_zew = pen(x0, c0, dc, epsilon, Nmax, &a);
-cout << opt_zew<< endl << endl;
-cout << sqrt(pow(opt_zew.x(0), 2) + pow(opt_zew.x(1), 2))  << endl << endl; // 4.000001
+////double c0 = 1, dc = 2, epsilon = 1e-5; // zewnetrzna
+//double c0 = 10, dc = 0.5, epsilon = 1e-5; // wewnetrzna
+//int Nmax = 10000;
+//
+//// 4,49
+//
+//solution opt_zew = pen(x0, c0, dc, epsilon, Nmax, &a);
+//cout << opt_zew<< endl << endl;
+//cout << sqrt(pow(opt_zew.x(0), 2) + pow(opt_zew.x(1), 2))  << endl << endl; // 4.000001
 
 #elif LAB_NO==3 && LAB_PART==2
-matrix x0(2, 1, 2), c = 1;
-solution test(x0);
-test.fit_fun(nullptr, &c);
-cout << test << endl;
+//matrix x0(2, 1, 2), c = 1;
+//solution test(x0);
+//test.fit_fun(nullptr, &c);
+//cout << test << endl;
+
+double c0 = 1, dc = 2, epsilon = 1e-1; // zewnetrzna
+int Nmax = 2000;
+
+std::uniform_real_distribution<double> v_unif(-10, 10);
+std::uniform_real_distribution<double> w_unif(-20, 20);
+std::default_random_engine v_re;
+std::default_random_engine w_re;
+
+matrix x0(2, 1), ud(1, 3);
+x0(0, 0) = v_unif(v_re);
+x0(1, 0) = w_unif(w_re);
+
+cout << x0 << endl << endl;
+
+solution opt = pen(x0, c0, dc, epsilon, Nmax, &ud);
+cout << opt << endl << endl;
 
 #elif LAB_NO==4 && LAB_PART==1
 matrix x0 = 20 * rand_mat(2, 1) - 10;
