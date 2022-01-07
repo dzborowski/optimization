@@ -202,6 +202,7 @@ if (f_calls == 1)
 }
 
 double h;
+double P = 0;
 y = 0;
 
 for (int i = 0; i < m; i++)
@@ -209,9 +210,17 @@ for (int i = 0; i < m; i++)
 	h = (trans(x) * X[i])();
 	h = 1 / (1 + exp(-h));
 	y = y - Y(0, i) * log(h) - (1 - Y(0, i)) * log(1 - h);
+	
+	int h_normalized = h >= 0.5 ? 1 : 0;
+
+	if (h_normalized == Y(0, i)) {
+		P++;
+	}
 }
 
 y = y / m;
+P = P / m;
+cout << "P: " << P << endl;
 #elif LAB_NO==5 && LAB_PART==1
 
 #elif LAB_NO==5 && LAB_PART==2
@@ -237,9 +246,6 @@ void solution::grad(matrix *ud, matrix *ad)
 		S.open("YData.txt");
 		S >> Y;
 		S.close();
-
-		cout << "X: " << X << endl;
-		cout << "Y: " << Y << endl;
 	}
 	double h;
 	g = matrix(n, 1);

@@ -370,13 +370,20 @@ solution::clear_calls();
 #elif LAB_NO==4 && LAB_PART==2
 
 #elif LAB_NO==4 && LAB_PART==3
-matrix x0(3, new double[3]{ -1, 0.1, 0.1 });
-solution test(x0);
-test.fit_fun();
-test.grad();
+double steps[3] = { 0.01, 0.001, 0.0001 };
+double epsilon = 0.1;
+int Nmax = 10000;
 
-cout << test << endl;
-cout << test.g << endl;
+for (int i = 0; i < 3; i++)
+{
+	matrix x0(3, new double[3]{ 0, 0, 0 });
+	double h0 = steps[i];
+
+	solution opt = CG(x0, h0, epsilon, Nmax);
+	cout << opt << endl;
+	solution::clear_calls();
+}
+
 #elif LAB_NO==5 && LAB_PART==1
 
 #elif LAB_NO==5 && LAB_PART==2
