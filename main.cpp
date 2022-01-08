@@ -359,7 +359,6 @@ opt = SD(x0, h0, epsilon, Nmax);
 cout << opt << endl;
 solution::clear_calls();
 
-
 opt = CG(x0, h0, epsilon, Nmax);
 cout << opt << endl;
 solution::clear_calls();
@@ -368,10 +367,20 @@ opt = Newton(x0, h0, epsilon, Nmax);
 cout << opt << endl;
 solution::clear_calls();
 #elif LAB_NO==4 && LAB_PART==2
+matrix x0 = 20 * rand_mat(2, 1) - 10;
+double epsilon = 1e-3, h0 = -0.05;
+int Nmax = 10000;
 
+matrix ud_SD(trans(x0));
+
+solution opt;
+opt = SD(x0, h0, epsilon, Nmax, &ud_SD);
+cout << opt << endl;
+cout << ud_SD << endl;
+solution::clear_calls();
 #elif LAB_NO==4 && LAB_PART==3
 double steps[3] = { 0.01, 0.001, 0.0001 };
-double epsilon = 0.1;
+double epsilon = 1e-5;
 int Nmax = 10000;
 
 for (int i = 0; i < 3; i++)
