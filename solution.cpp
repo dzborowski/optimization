@@ -224,7 +224,26 @@ cout << "P: " << P << endl;
 #elif LAB_NO==5 && LAB_PART==1
 y = pow(x(0), 2) + pow(x(1), 2) - cos(2.5 * 3.14 * x(0)) - cos(2.5 * 3.14 * x(1)) + 2;
 #elif LAB_NO==5 && LAB_PART==2
+int N = 1001;
+static matrix X(N, 2);
+if (solution::f_calls == 1)
+{
+	ifstream S("polozenia.txt");
+	S >> X;
+	S.close();
+}
 
+matrix Y0(4, 1);
+matrix *Y = solve_ode(0, 0.1, 100, Y0, &x);
+
+y = 0;
+
+for (int i = 0; i < N; i++)
+{
+	y = y + abs(X(i, 0) - Y[1](i, 0)) + abs(X(i, 1) - Y[1](i, 2));
+}
+
+y = y / (2 * N);
 #endif
 }
 

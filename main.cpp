@@ -396,7 +396,7 @@ for (int i = 0; i < 3; i++)
 #elif LAB_NO==5 && LAB_PART==1
 int N = 2, mi = 20, lambda = 40, Nmax = 10000;
 matrix limits(N, 2), sigma0(N, 1);
-double epsilon = 1e-3;
+double epsilon = 1e-5;
 
 limits(0, 0) = limits(1, 0) = -5;
 limits(0, 1) = limits(1, 1) = 5;
@@ -407,7 +407,10 @@ solution opt = EA(N, limits, mi, lambda, sigma0, epsilon, Nmax);
 cout << opt << endl;
 
 #elif LAB_NO==5 && LAB_PART==2
-
+solution test;
+test.x = matrix(2, 2, 1);
+test.fit_fun();
+cout << test << endl;
 #endif
 	}
 	catch (char * EX_INFO)
