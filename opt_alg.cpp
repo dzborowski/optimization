@@ -492,21 +492,17 @@ solution golden(double a, double b, double epsilon, int Nmax, matrix *ud, matrix
 #if LAB_NO>4
 solution EA(int N, matrix limits, int mi, int lambda, matrix sigma0, double epsilon, int Nmax, matrix *ud, matrix *ad)
 {
-	// mi liczebnoœæ poczatkowa popuplacji
-	// lambda liczebnoœæ potomnej popuplacji
-	// sigma0 poczatkowe wartosci odchylenia standradowego
-
+	//mi liczebnosc populacji
 	solution *P = new solution[mi + lambda];
 	solution *Pm = new solution[mi];
-	random_device rd;
+	//random_device rd; - zbedne
 	default_random_engine gen;
 	gen.seed(static_cast<unsigned int>(chrono::system_clock::now().time_since_epoch().count()));
 	normal_distribution<double> distr(0.0, 1.0);
-	matrix IFF(mi, 1), temp(N, 2); // IFF macierz przystosowania
+	matrix IFF(mi, 1), temp(N, 2); //IFF macierz z przystosowaniami //temp - kopia osobnikia
 	double r, s, s_IFF;
-	double tau = pow(2 * N, -0.5), tau1 = pow(2 * pow(N, 0.5), -0.5); // wykorzystywane przy mutacji
-	int j_min; // index najlepszego rozwiazania
-	// losowanie
+	double tau = pow(2 * N, -0.5), tau1 = pow(2 * pow(N, 0.5), -0.5); //tau,tau1 - mutacja
+	int j_min; //indeks najlepszego rozwiazania
 	for (int i = 0; i < mi; ++i)
 	{
 		P[i].x = matrix(N, 2);
@@ -522,63 +518,64 @@ solution EA(int N, matrix limits, int mi, int lambda, matrix sigma0, double epsi
 	while (true)
 	{
 		s_IFF = 0;
-		for (int i = 0; i < mi; ++i)
+		//ruletka
+		for (int i = 0; i<mi; ++i)
 		{
 			IFF(i) = 1 / P[i].y();
 			s_IFF += IFF(i);
 		}
-		// kolo ruletki
-		for (int i = 0; i < lambda; ++i) 
+		for (int i = 0; i<lambda; ++i)
 		{
 			r = s_IFF * rand_mat(1, 1)();
 			s = 0;
-				for (int j = 0; j < mi; ++j)
+			for (int j = 0; j<mi; ++j)
+			{
+				s += IFF(j);
+				if (r <= s)
 				{
-					s += IFF(j);
-						if (r <= s)
-						{
-							P[mi + i] = P[j];
-							break;
-						}
+					P[mi + i] = P[j]; // j - wylosowany osobnik
+					break;
 				}
+			}
 		}
-		// mutacja
-		for (int i = 0; i < lambda; ++i)
+		//mutajca
+		for (int i = 0; i<lambda; ++i)
 		{
 			r = distr(gen);
-				for (int j = 0; j < N; ++j)
-				{
-					P[mi + i].x(j, 1) *= exp(tau1 * r + tau * distr(gen));
-					P[mi + i].y(j, 0) += P[mi + i].x(j, 1) * distr(gen);
-				}
+			for (int j = 0; j<N; ++j)
+			{
+				P[mi + i].x(j, 1) *= exp(tau1*r + tau*distr(gen));
+				P[mi + i].x(j, 0) += P[mi + i].x(j, 1)*distr(gen);
+			}
 		}
-		// krzyzowanie
-		for (int i = 0; i < lambda; i += 2)
+		//krzyzowanie
+		for (int i = 0; i<lambda; i += 2)
 		{
 			r = rand_mat(1, 1)();
-			temp = P[mi + i].x;
-			P[mi + i].x = r * P[mi + i].x + (1 - r) * P[mi + i + 1].x;
-			P[mi + i + 1].x = r * P[mi + i + 1].x + (1 - r) * temp;
+			temp = P[mi + i].x;  //jeden z rodzicow
+			P[mi + i].x = r*P[mi + i].x + (1 - r)*P[mi + i + 1].x;  //pierwszy potomek
+			P[mi + i + 1].x = r*P[mi + i + 1].x + (1 - r)*temp;  //drugi potomek
 		}
-		// ocena osobnikow
-		for (int i = 0; i < lambda; ++i)
+		//ocena osobnikow
+		for (int i = 0; i<lambda; ++i)
 		{
 			P[mi + i].fit_fun(ud, ad);
-			if (P[mi + i].y < epsilon)
+			if (P[mi + i].y < epsilon)  //ocena rozwiazania
 				return P[mi + i];
 		}
-		for (int i = 0; i < mi; ++i)
+		//wskazanie najelpszych osobnikow
+		for (int i = 0; i<mi; ++i)
 		{
 			j_min = 0;
-			for (int j = 1; j < mi + lambda; ++j)
-				if (P[j_min].y > P[j].y)
+			for (int j = 1; j<mi + lambda; ++j)
+				if (P[j_min].y>P[j].y)
 					j_min = j;
 			Pm[i] = P[j_min];
 			P[j_min].y = 1e10;
 		}
 		for (int i = 0; i < mi; ++i)
-			P[i] = Pm[i];
-		if (solution::f_calls > Nmax)
+			P[i] = Pm[i];  //P[i] najlepsza populacja
+		if (solution::f_calls>Nmax)
 			return P[0];
 	}
 }
