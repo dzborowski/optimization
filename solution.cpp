@@ -241,6 +241,10 @@ y = 0;
 for (int i = 0; i < N; i++)
 {
 	y = y + abs(X(i, 0) - Y[1](i, 0)) + abs(X(i, 1) - Y[1](i, 2));
+	matrix b(1, 2);
+	b(0, 0) = Y[1](i, 0);
+	b(0, 1) = Y[1](i, 2);
+	(*ud).set_row(b, i);
 }
 
 y = y / (2 * N);

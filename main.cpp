@@ -407,10 +407,30 @@ solution opt = EA(N, limits, mi, lambda, sigma0, epsilon, Nmax);
 cout << opt << endl;
 
 #elif LAB_NO==5 && LAB_PART==2
-solution test;
-test.x = matrix(2, 2, 1);
-test.fit_fun();
-cout << test << endl;
+int N = 2, mi = 20, lambda = 40, Nmax = 10000, row = 1001, col = 2;
+matrix limits(N, 2), sigma0(N, 1), ud(row, col);
+double epsilon = 1e-3;
+
+limits(0, 0) = limits(1, 0) = 0.1;
+limits(0, 1) = limits(1, 1) = 3;
+
+sigma0(0) = sigma0(1) = 1;
+
+solution opt = EA(N, limits, mi, lambda, sigma0, epsilon, Nmax, &ud);
+cout << opt << endl;
+
+std::ofstream out("lab_5_part_2.csv");
+
+for (int i = 0; i < row; ++i)
+{
+	for (int j = 0; j < col; ++j)
+		if (j < (col - 1)) {
+			out << ud(i, j) << ",";
+		}
+		else if (j == (col - 1)) {
+			out << ud(i, j) << "\n";
+		}
+}
 #endif
 	}
 	catch (char * EX_INFO)
